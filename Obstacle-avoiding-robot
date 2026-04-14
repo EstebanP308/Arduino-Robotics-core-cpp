@@ -1,0 +1,94 @@
+#include <Arduino.h>
+
+// Global Settings
+int pwm_speed = 255;
+int trig = 12;
+int echo = 13; 
+
+// Function Prototypes
+void moveForward(int duration);
+void moveBackward(int duration);
+void turnLeft(int duration);
+void turnRight(int duration);
+void stopMotors(int duration);
+
+void setup() {
+  // Motor Pins Configuration
+  pinMode(11, OUTPUT);
+  pinMode(10, OUTPUT);
+  pinMode(9, OUTPUT);
+  pinMode(6, OUTPUT);
+  pinMode(5, OUTPUT);
+  pinMode(3, OUTPUT);
+  
+  // Ultrasonic Sensor Configuration
+  pinMode(trig, OUTPUT);
+  pinMode(echo, INPUT);
+  
+  Serial.begin(9600); 
+  Serial.println("System Initialized: Obstacle Avoidance Mode");
+}
+
+void loop() {
+  // Triggering the Ultrasonic Sensor
+  digitalWrite(trig, LOW);
+  delayMicroseconds(2);
+  digitalWrite(trig, HIGH);
+  delayMicroseconds(10); 
+  digitalWrite(trig, LOW);
+
+  // Calculating Distance (Duration / 29 / 2 = cm)
+  long pulseDuration = pulseIn(echo, HIGH); 
+  int distance = pulseDuration / 29 / 2;
+
+  // Serial Monitor for Debugging
+  Serial.print("Current Distance: ");
+  Serial.print(distance);
+  Serial.println(" cm");
+
+  // Obstacle Avoidance Logic
+  if(distance > 15 || distance == 0){ 
+     moveForward(100);
+  } else {
+     stopMotors(100); 
+     moveBackward(500); 
+     turnLeft(600);    
+  }
+}
+
+// --- MOTION CONTROL FUNCTIONS ---
+
+void moveForward(int duration){
+  digitalWrite(11, HIGH); digitalWrite(10, LOW);
+  digitalWrite(9, HIGH);  digitalWrite(6, LOW);
+  analogWrite(5, pwm_speed); analogWrite(3, pwm_speed);
+  delay(duration);
+}
+
+void moveBackward(int duration){
+  digitalWrite(11, LOW);  digitalWrite(10, HIGH);
+  digitalWrite(9, LOW);   digitalWrite(6, HIGH);
+  analogWrite(5, pwm_speed); analogWrite(3, pwm_speed);
+  delay(duration);
+}
+
+void turnLeft(int duration){
+  digitalWrite(11, HIGH); digitalWrite(10, LOW);
+  digitalWrite(9, LOW);   digitalWrite(6, LOW);
+  analogWrite(5, pwm_speed); analogWrite(3, 0);
+  delay(duration);
+}
+
+void turnRight(int duration){
+  digitalWrite(11, LOW);  digitalWrite(10, LOW);
+  digitalWrite(9, HIGH);  digitalWrite(6, LOW);
+  analogWrite(5, 0); analogWrite(3, pwm_speed);
+  delay(duration);
+}
+
+void stopMotors(int duration){
+  digitalWrite(11, LOW); digitalWrite(10, LOW);
+  digitalWrite(9, LOW);  digitalWrite(6, LOW);
+  analogWrite(5, 0);     analogWrite(3, 0);
+  delay(duration);
+} 
