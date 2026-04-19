@@ -1,1 +1,0 @@
-// Small update to trigger language detection on GitHub\n
