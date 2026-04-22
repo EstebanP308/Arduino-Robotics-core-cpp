@@ -1,0 +1,87 @@
+#include <Arduino.h>
+#include <Servo.h> 
+
+int trig = A1;
+int echo = A0;
+Servo myservo; 
+
+void stopMotors() {
+  analogWrite(5, 0); analogWrite(3, 0);
+  digitalWrite(11, LOW); digitalWrite(10, LOW);
+  digitalWrite(9, LOW);  digitalWrite(6, LOW);
+}
+
+void setup() {
+  pinMode(11, OUTPUT); pinMode(10, OUTPUT);
+  pinMode(9, OUTPUT);  pinMode(6, OUTPUT);
+  pinMode(5, OUTPUT);  pinMode(3, OUTPUT);
+  pinMode(trig, OUTPUT);
+  pinMode(echo, INPUT);
+  myservo.attach(A2); 
+  myservo.write(90); 
+  stopMotors();
+  delay(1000); 
+}
+
+void loop() {
+  // --- MEDICIÓN CON FILTRO ---
+  digitalWrite(trig, LOW); delayMicroseconds(2);
+  digitalWrite(trig, HIGH); delayMicroseconds(10);
+  digitalWrite(trig, LOW);
+
+  long pulseDuration = pulseIn(echo, HIGH, 30000);
+  int distance = pulseDuration / 29 / 2;
+
+  // Si detecta algo a menos de 20cm, volvemos a medir rápido para confirmar
+  if (distance > 0 && distance < 20) {
+      delay(20); // Pausa mini
+      digitalWrite(trig, LOW); delayMicroseconds(2);
+      digitalWrite(trig, HIGH); delayMicroseconds(10);
+      digitalWrite(trig, LOW);
+      pulseDuration = pulseIn(echo, HIGH, 30000);
+      distance = pulseDuration / 29 / 2;
+  }
+
+  // --- LÓGICA DE NAVEGACIÓN ---
+  // Si la distancia es 0 o mayor a 25, ¡CAMINO LIBRE!
+  if (distance > 20 || distance == 0) { 
+     digitalWrite(11, HIGH); digitalWrite(10, LOW); 
+     digitalWrite(9, LOW);   digitalWrite(6, HIGH); 
+     
+     // AJUSTE PARA IR RECTO:
+     // Bajamos el Izquierdo (pin 5) y subimos el Derecho (pin 3) 
+     // para compensar el desvío a la derecha.
+     analogWrite(5, 150); // Motor Izquierdo
+     analogWrite(3, 155); // Motor Derecho 
+     
+     myservo.write(90); 
+  }
+
+  else {
+     // OBSTÁCULO CONFIRMADO
+     stopMotors(); 
+     delay(300); // Pausa más corta para que no sea tan lento
+
+     myservo.write(140); delay(300);
+     myservo.write(40);  delay(300);
+     myservo.write(90);  delay(200);
+
+     // Reversa más corta (solo para separarse un poco)
+     digitalWrite(11, LOW);  digitalWrite(10, HIGH);
+     digitalWrite(9, HIGH);  digitalWrite(6, LOW);
+     analogWrite(5, 140);    analogWrite(3, 140);
+     delay(300); // Bajamos de 600 a 300
+     
+     stopMotors();
+     delay(100);
+
+     // Giro más ágil
+     digitalWrite(11, HIGH); digitalWrite(10, LOW); 
+     digitalWrite(9, HIGH);  digitalWrite(6, LOW);
+     analogWrite(5, 150);    analogWrite(3, 150);
+     delay(400); 
+
+     stopMotors();
+     delay(200);
+  }
+}
