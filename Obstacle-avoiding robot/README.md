@@ -14,7 +14,14 @@ In the `Unsuccessful_Robot_Code` folder, you can find the previous version that 
 * **Error:** The sensor was **tilted downward**.
 * **Result:** The robot detected the ground as a constant obstacle, entering an infinite loop of turning.
 
-### 3. Control Logic Optimization
+### 3. The Left motor was more powerful than the right motor
+* **Error:** The Left motor was more "powerful" than the right, causing the car to drift to the right.
+* ** Solution** // We lower the Left motor (pin 5) and raise the Right motor (pin 3)
+     // to compensate for the drift to the right.
+     analogWrite(5, 150); // Left Motor
+     analogWrite(3, 155); // Right Motor
+
+### 4. Control Logic Optimization
 The decision threshold was improved to filter out false sensor readings:
 
 * **Before:** `if (distance > 15)` (Too short and sensitive to noise).
@@ -27,8 +34,10 @@ if (distance > 25 || distance < 5) {
 ```
 *With this condition, the robot ignores readings under 5 cm (ground noise) and only moves forward if it has a clear path of at least 25 cm.*
 
+### More about this on my YouTube channel!
+
 ## 🚀 Overview
-The core of this project is a **reactive control system**. If an object is detected within a specific threshold (15cm), the robot executes an evasion maneuver (stop, backup, and turn) before resuming forward motion.
+The core of this project is a **reactive control system**. If an object is detected within a specific threshold (20cm), the robot executes an evasion maneuver (stop, backup, and turn) before resuming forward motion.
 
 ## 🛠️ Hardware & Components
 - **Microcontroller:** Arduino R3 (Atmega328P)
@@ -40,10 +49,13 @@ The core of this project is a **reactive control system**. If an object is detec
 ## 🧠 Technical Logic
 The software is structured into modular functions to ensure clean code and efficient execution:
 - **Distance Calculation:** Measures the time of flight of sound waves to determine object proximity.
-- **Pulse Width Modulation (PWM):** Used to control motor torque and speed (0-255 range).
 - **Decision Matrix:** 
-  - `Distance > 15cm`: Forward motion.
-  - `Distance <= 15cm`: Obstacle detected -> Trigger avoidance protocol.
+  - // --- NAVIGATION LOGIC ---
+  // If the distance is 0 or greater than 25, CLEAR PATH!
+  if (distance > 20 || distance == 0)
+
+  - // If it detects something less than 20cm away, stop, turn, and go to a clear path.
+  if (distance > 0 and distance < 20) 
 
 ## 📂 Project Structure
 - `src/main.cpp`: The main control logic written in C++.
