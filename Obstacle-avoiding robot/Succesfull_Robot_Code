@@ -49,7 +49,7 @@ void loop() {
      digitalWrite(9, LOW);   digitalWrite(6, HIGH); 
      
      // ADJUSTMENT FOR STRAIGHT TRAVEL:
-     // Lower the Left side (pin 5) and raise the Right side (pin 3)
+     // Raise the Left side (pin 5) and Lower the Right side (pin 3)
      // to compensate for the drift to the right.
      analogWrite(5, 150); // Left Motor
      analogWrite(3, 155); // Right Motor
