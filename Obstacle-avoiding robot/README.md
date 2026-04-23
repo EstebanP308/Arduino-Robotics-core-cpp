@@ -15,11 +15,9 @@ In the `Unsuccessful_Robot_Code` folder, you can find the previous version that 
 * **Result:** The robot detected the ground as a constant obstacle, entering an infinite loop of turning.
 
 ### 3. The Left motor was more powerful than the right motor
-* **Error:** The Left motor was more "powerful" than the right, causing the car to drift to the right.
-* **Solution** // We lower the Left motor (pin 5) and raise the Right motor (pin 3)
-     // to compensate for the drift to the right.
-     analogWrite(5, 150); // Left Motor
-     analogWrite(3, 155); // Right Motor
+* **Error:** The left motor was physically more powerful than the right one. Using the same PWM value for both made the car drift to the right.
+* **solution** I manually balanced the power using analogWrite(5, 150) for the Left Motor and analogWrite(3, 155) for the Right Motor to ensure a straight path.
+
 
 ### 4. Control Logic Optimization
 The decision threshold was improved to filter out false sensor readings:
