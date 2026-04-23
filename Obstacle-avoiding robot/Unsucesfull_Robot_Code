@@ -1,0 +1,40 @@
+#include <Arduino.h>
+// This code was missing #include <Servo.h>, which is why the head wasn't moving.
+
+int pwm_speed = 250; // Too fast! It couldn't stop in time.
+int trig = A1; 
+int echo = A0; 
+//The servo needed to be initialized here.
+
+void setup() {
+  pinMode(11, OUTPUT); pinMode(10, OUTPUT);
+  pinMode(9, OUTPUT);  pinMode(6, OUTPUT);
+  pinMode(5, OUTPUT);  pinMode(3, OUTPUT);
+  pinMode(trig, OUTPUT);
+  pinMode(echo, INPUT);
+}
+
+void loop() {
+  digitalWrite(trig, LOW);
+  delayMicroseconds(2);
+  digitalWrite(trig, HIGH);
+  delayMicroseconds(10); 
+  digitalWrite(trig, LOW);
+
+  long pulseDuration = pulseIn(echo, HIGH); 
+  int distance = pulseDuration / 29 / 2;
+
+  // ERROR 1: Distance too short (15cm). The car crashed before reacting.
+  if(distance > 15 || distance == 0){ 
+     // ERROR 2: Inverted motors. Here, the robot was moving backward.
+     digitalWrite(11, HIGH); digitalWrite(10, LOW);
+     digitalWrite(9, HIGH);  digitalWrite(6, LOW);
+     analogWrite(5, pwm_speed); analogWrite(3, pwm_speed);
+  } else {
+     // Endless spins. The 600ms delay was too much, and he was getting dizzy.
+     digitalWrite(11, HIGH); digitalWrite(10, LOW);
+     digitalWrite(9, LOW);   digitalWrite(6, LOW);
+     analogWrite(5, pwm_speed); analogWrite(3, 0);
+     delay(600);    
+  }
+}
