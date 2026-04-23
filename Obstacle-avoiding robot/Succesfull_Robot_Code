@@ -1,0 +1,87 @@
+#include <Arduino.h>
+#include <Servo.h> 
+
+int trig = A1;
+int echo = A0;
+Servo myservo; 
+
+
+void stopMotors() {
+  analogWrite(5, 0); analogWrite(3, 0);
+  digitalWrite(11, LOW); digitalWrite(10, LOW);
+  digitalWrite(9, LOW);  digitalWrite(6, LOW);
+}
+
+void setup() {
+  pinMode(11, OUTPUT); pinMode(10, OUTPUT);
+  pinMode(9, OUTPUT);  pinMode(6, OUTPUT);
+  pinMode(5, OUTPUT);  pinMode(3, OUTPUT);
+  pinMode(trig, OUTPUT);
+  pinMode(echo, INPUT);
+  myservo.attach(A2); 
+  myservo.write(90); 
+  stopMotors();
+  delay(1000); 
+}
+
+void loop() {
+  digitalWrite(trig, LOW); delayMicroseconds(2);
+  digitalWrite(trig, HIGH); delayMicroseconds(10);
+  digitalWrite(trig, LOW);
+
+  long pulseDuration = pulseIn(echo, HIGH, 30000);
+  int distance = pulseDuration / 29 / 2;
+
+ // If it detects something within 20 cm, we quickly measure again to confirm.
+  if (distance > 0 and distance < 20) {
+      delay(20); // Mini-break
+      digitalWrite(trig, LOW); delayMicroseconds(2);
+      digitalWrite(trig, HIGH); delayMicroseconds(10);
+      digitalWrite(trig, LOW);
+      pulseDuration = pulseIn(echo, HIGH, 30000);
+      distance = pulseDuration / 29 / 2;
+  }
+
+  // --- NAVIGATION LOGIC ---
+  // If the distance is 0 or greater than 20, CLEAR PATH!
+  if (distance > 20 || distance == 0) { 
+     digitalWrite(11, HIGH); digitalWrite(10, LOW); 
+     digitalWrite(9, LOW);   digitalWrite(6, HIGH); 
+     
+     // ADJUSTMENT FOR STRAIGHT TRAVEL:
+     // Lower the Left side (pin 5) and raise the Right side (pin 3)
+     // to compensate for the drift to the right.
+     analogWrite(5, 150); // Left Motor
+     analogWrite(3, 155); // Right Motor
+     
+     myservo.write(90); 
+  }
+
+  else {
+    // OBSTACLE CONFIRMED
+     stopMotors(); 
+     delay(300); // A shorter pause, so it's not so slow.
+
+     myservo.write(140); delay(300);
+     myservo.write(40);  delay(300);
+     myservo.write(90);  delay(200);
+
+     // Shortest reverse (to back away a little)
+     digitalWrite(11, LOW);  digitalWrite(10, HIGH);
+     digitalWrite(9, HIGH);  digitalWrite(6, LOW);
+     analogWrite(5, 140);    analogWrite(3, 140);
+     delay(300); // Lower from 600 to 300
+     
+     stopMotors();
+     delay(100);
+
+     // More agile turning
+     digitalWrite(11, HIGH); digitalWrite(10, LOW); 
+     digitalWrite(9, HIGH);  digitalWrite(6, LOW);
+     analogWrite(5, 150);    analogWrite(3, 150);
+     delay(400); 
+
+     stopMotors();
+     delay(200);
+  }
+}
