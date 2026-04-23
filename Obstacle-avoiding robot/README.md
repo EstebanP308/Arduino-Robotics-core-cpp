@@ -16,7 +16,7 @@ In the `Unsuccessful_Robot_Code` folder, you can find the previous version that 
 
 ### 3. The Left motor was more powerful than the right motor
 * **Error:** The Left motor was more "powerful" than the right, causing the car to drift to the right.
-* ** Solution** // We lower the Left motor (pin 5) and raise the Right motor (pin 3)
+* **Solution** // We lower the Left motor (pin 5) and raise the Right motor (pin 3)
      // to compensate for the drift to the right.
      analogWrite(5, 150); // Left Motor
      analogWrite(3, 155); // Right Motor
@@ -28,11 +28,11 @@ The decision threshold was improved to filter out false sensor readings:
 * **Now:** 
 ```cpp
 // Improved logic to avoid false positives
-if (distance > 25 || distance < 5) {
+if (distance > 20 || distance < 5) {
     moveForward(); // Only move forward if there is actual space or if the object is right up close (noise)
 }
 ```
-*With this condition, the robot ignores readings under 5 cm (ground noise) and only moves forward if it has a clear path of at least 25 cm.*
+*With this condition, the robot ignores readings under 5 cm (ground noise) and only moves forward if it has a clear path of at least 20 cm.*
 
 ### More about this on my YouTube channel!
 
@@ -51,14 +51,20 @@ The software is structured into modular functions to ensure clean code and effic
 - **Distance Calculation:** Measures the time of flight of sound waves to determine object proximity.
 - **Decision Matrix:** 
   - // --- NAVIGATION LOGIC ---
-  // If the distance is 0 or greater than 25, CLEAR PATH!
+  // If the distance is 0 or greater than 20, CLEAR PATH!
   if (distance > 20 || distance == 0)
 
   - // If it detects something less than 20cm away, stop, turn, and go to a clear path.
-  if (distance > 0 and distance < 20) 
+  if (distance > 0 && distance < 20) 
 
 ## 📂 Project Structure
 - `src/main.cpp`: The main control logic written in C++.
 - `platformio.ini`: Project configuration for the R3 board.
 
-## 🎓 What I Learned
+## 🎓 Key Learnings
+
+* **Problem Solving:** Diagnosing faults in both hardware (miscalibrated sensors) and software (compilation conflicts).
+* **Hardware Construction:** Physical assembly of a 2WD chassis and integration of DC motors.
+* **Professional Workflow:** Configuring **VS Code + PlatformIO** to manage hardware projects—a more advanced and powerful alternative to the standard Arduino IDE.
+* **Motor Control (PWM):** Implementing Pulse Width Modulation to adjust individual motor speeds, compensate for hardware deviations, and achieve straight-line movement.
+* **Real-Time Control Logic:** Creating a reactive system based on continuous readings from ultrasonic sensors.
